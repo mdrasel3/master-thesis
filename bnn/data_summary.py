@@ -28,14 +28,14 @@ mean_t = Y.mean(axis=0).mean(axis=(1, 2))
 print("[(Time, Average Spread, Average Mean)]:\n",[(int(k*2), float(std_t[k]), float(mean_t[k])) for k in (25,50,75,100)])
 print("Spread across runs (std)/ mean field at t=50,100,150,200 s:\n", [round(float(std_t[k] / max(mean_t[k], 1e-12)), 3) for k in (25, 50, 75, 100)])
 
-fig, ax = plt.subplots(2, 4, figsize=(16, 6))
+fig, ax = plt.subplots(2, 4, figsize=(16, 14))
 for j, k in enumerate((25, 50, 75, 100)):
-    im = ax[0, j].imshow(Y[0, k], origin="lower", aspect="equal")
+    im = show_field(ax[0, j], Y[0, k])
     ax[0, j].set_title(f"Run_{train[0]}, t={t[k]} s")
     plt.colorbar(im, ax=ax[0, j], fraction=0.046)
-im = ax[1, 0].imshow(Y[:, 100].mean(axis=0), origin="lower"); ax[1, 0].set_title("mean over runs, t=200 s")
+im = show_field(ax[1, 0], Y[:, 100].mean(axis=0)); ax[1, 0].set_title("mean over runs, t=200 s")
 plt.colorbar(im, ax=ax[1, 0], fraction=0.046)
-im = ax[1, 1].imshow(Y[:, 100].std(axis=0), origin="lower"); ax[1, 1].set_title("std over runs, t=200 s")
+im = show_field(ax[1, 1], Y[:, 100].std(axis=0)); ax[1, 1].set_title("std over runs, t=200 s")
 plt.colorbar(im, ax=ax[1, 1], fraction=0.046)
 for i in range(n):
     ax[1, 2].plot(t, Y[i].sum(axis=(1, 2)), lw=0.5)

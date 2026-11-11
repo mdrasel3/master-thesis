@@ -59,6 +59,17 @@ def to_physical(Z, s):
     return np.expm1(np.maximum(Z, 0) * s)
 
 
+# plot one (28, 70) field: x (28 cells) horizontal, z (70 cells) vertical, 4 cm cells
+cell = 0.04
+
+
+def show_field(ax, field, **kw):
+    im = ax.imshow(field.T, origin="lower", extent=[0, 28 * cell, 0, 70 * cell], **kw)
+    ax.set_xlabel("x [m]")
+    ax.set_ylabel("z [m]")
+    return im
+
+
 # experiment log: one row per evaluated model, with the git commit it ran on
 log_cols = ["date", "commit", "model", "n_train", "seed", "epochs", "lr", "batch_size", "best_epoch"] + \
            [s + "_" + k for s in ("val", "test") for k in ("rel_l2_mean", "rel_l2_max", "rmse", "mae", "r2")]
