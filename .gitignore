@@ -17,3 +17,5 @@ __pycache__/
 # ignore these folders
 bnn/simple_bnn/
 PODI_output_files/
+
+CLAUDE.md
