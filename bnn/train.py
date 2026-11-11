@@ -14,25 +14,25 @@ torch.manual_seed(seed)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print("device", device)
 
-doe, Y = load_data()
-P = scale_params(doe)
 train, validation, test = split_runs()
-s = fit_scale(Y[train])
-Z = to_scaled(Y, s)
+P_train, Y_train = load_runs(train)
+P_val, Y_val = load_runs(validation)
+s = fit_scale(Y_train)
 t = np.arange(n_times) / (n_times - 1)
 
 
 # one row per (run, time step): [5 scaled params, t] -> scaled field
-def make_pairs(idx):
-    n = len(idx)
-    X = np.concatenate([np.repeat(P[idx], n_times, axis=0), np.tile(t, n)[:, None]], axis=1)
-    T = Z[idx].reshape(n * n_times, 1, 28, 70)
+def make_pairs(P, Y):
+    n = len(P)
+    X = np.concatenate([np.repeat(P, n_times, axis=0), np.tile(t, n)[:, None]], axis=1)
+    T = to_scaled(Y, s).reshape(n * n_times, 1, 28, 70)
     return torch.tensor(X, dtype=torch.float32, device=device), torch.tensor(T, dtype=torch.float32, device=device)
 
 
-X_tr, T_tr = make_pairs(train)
-X_va, T_va = make_pairs(validation)
-print("train pairs", X_tr.shape[0], "val pairs", X_va.shape[0])
+X_tr, T_tr = make_pairs(P_train, Y_train)
+X_va, T_va = make_pairs(P_val, Y_val)
+del Y_train, Y_val
+print("train runs", len(train), "pairs", X_tr.shape[0], "| val runs", len(validation), "pairs", X_va.shape[0])
 
 model = Decoder().to(device)
 print("parameters", sum(p.numel() for p in model.parameters()))
@@ -40,6 +40,7 @@ opt = torch.optim.Adam(model.parameters(), lr=lr)
 loss_fn = torch.nn.MSELoss()
 
 best = float("inf")
+best_epoch = 0
 history = []
 for epoch in range(1, epochs + 1):
     model.train()
@@ -61,9 +62,11 @@ for epoch in range(1, epochs + 1):
     history.append([train_loss, val_loss])
 
     if val_loss < best:
-        best = val_loss
-        torch.save({"model": model.state_dict(), "s": s, "train": train, "validation": validation, "test": test}, ckpt_file)
+        best, best_epoch = val_loss, epoch
+        torch.save({"model": model.state_dict(), "s": s, "train": train, "validation": validation, "test": test,
+                    "n_train": n_train, "seed": seed, "epochs": epochs, "lr": lr, "batch_size": batch_size,
+                    "best_epoch": best_epoch}, ckpt_file)
     if epoch % 10 == 0 or epoch == 1:
-        print(f"epoch {epoch} train {train_loss:.5f} val {val_loss:.5f} best {best:.5f}")
+        print(f"epoch {epoch} train {train_loss:.5f} val {val_loss:.5f} best {best:.5f} (epoch {best_epoch})")
 
 np.save(os.path.join(results_dir, "loss_history.npy"), np.array(history))

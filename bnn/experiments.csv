@@ -1,0 +1,4 @@
+date,commit,model,n_train,seed,epochs,lr,batch_size,best_epoch,val_rel_l2_mean,val_rel_l2_max,val_rmse,val_mae,val_r2,test_rel_l2_mean,test_rel_l2_max,test_rmse,test_mae,test_r2
+2026-11-11 17:06,f5fd7a1-dirty,baseline,128,,,,,,0.7044,0.97243,503.09396,97.14739,0.51514,0.71431,0.96161,528.12207,101.55752,0.48694
+2026-11-11 17:12,f5fd7a1-dirty,baseline,128,,,,,,0.7044,0.97243,503.09396,97.14739,0.51514,0.71431,0.96161,528.12207,101.55752,0.48694
+2026-11-11 18:01,f5fd7a1-dirty,deterministic,128,0,300,0.001,256,104,0.65302,0.68986,481.11526,76.10751,0.55658,0.65217,0.68451,491.01511,78.21773,0.55651

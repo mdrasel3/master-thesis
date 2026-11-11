@@ -5,21 +5,23 @@ import matplotlib.pyplot as plt
 import os
 from data import *
 
-doe, Y = load_data()
-P = scale_params(doe)
+# summary of the training runs (Run_1 ... Run_n_train)
 train, validation, test = split_runs()
+P, Y = load_runs(train)
+n = len(train)
 t = np.arange(n_times) * 2
 
+print("training runs", n, "| validation", len(validation), "| test", len(test))
 print("Y", Y.shape, "max", Y.max(), "min", Y.min(), "zero fraction", (Y == 0).mean())
 print("scaled input params: \n min", P.min(axis=0), "\n max", P.max(axis=0))
 
 run_max = Y.max(axis=(1, 2, 3))
 print("max values across all runs: \n min", run_max.min(), "\n median", np.median(run_max), "\n max", run_max.max())
 
-first = np.array([np.argmax(Y[i].max(axis=(1, 2)) > 0) if Y[i].max() > 0 else -1 for i in range(n_runs)])
+first = np.array([np.argmax(Y[i].max(axis=(1, 2)) > 0) if Y[i].max() > 0 else -1 for i in range(n)])
 print("\n\nfirst nonzero time index: min", first.min(), "max", first.max())
 
-print("log1p scale (max, only training data):", fit_scale(Y[train]))
+print("log1p scale (max, only training data):", fit_scale(Y))
 
 std_t = Y.std(axis=0).mean(axis=(1, 2))
 mean_t = Y.mean(axis=0).mean(axis=(1, 2))
@@ -29,13 +31,13 @@ print("Spread across runs (std)/ mean field at t=50,100,150,200 s:\n", [round(fl
 fig, ax = plt.subplots(2, 4, figsize=(16, 6))
 for j, k in enumerate((25, 50, 75, 100)):
     im = ax[0, j].imshow(Y[0, k], origin="lower", aspect="equal")
-    ax[0, j].set_title(f"Run_1, t={t[k]} s")
+    ax[0, j].set_title(f"Run_{train[0]}, t={t[k]} s")
     plt.colorbar(im, ax=ax[0, j], fraction=0.046)
 im = ax[1, 0].imshow(Y[:, 100].mean(axis=0), origin="lower"); ax[1, 0].set_title("mean over runs, t=200 s")
 plt.colorbar(im, ax=ax[1, 0], fraction=0.046)
 im = ax[1, 1].imshow(Y[:, 100].std(axis=0), origin="lower"); ax[1, 1].set_title("std over runs, t=200 s")
 plt.colorbar(im, ax=ax[1, 1], fraction=0.046)
-for i in range(n_runs):
+for i in range(n):
     ax[1, 2].plot(t, Y[i].sum(axis=(1, 2)), lw=0.5)
 ax[1, 2].set_title("slice sum of HRRPUV vs time"); ax[1, 2].set_xlabel("t [s]")
 ax[1, 3].hist(np.log1p(Y[:, 100].ravel()), bins=50); ax[1, 3].set_title("log1p(HRRPUV), t=200 s")

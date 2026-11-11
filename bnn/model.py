@@ -1,3 +1,5 @@
+import numpy as np
+import torch
 import torch.nn as nn
 
 
@@ -19,3 +21,16 @@ class Decoder(nn.Module):
         h = self.act(self.up1(h))
         h = self.act(self.up2(h))
         return self.out(h)
+
+
+# all 101 time steps for each run; P = scaled parameters (n_runs, 5) -> scaled fields (n_runs, 101, 28, 70)
+def predict_runs(model, P, n_times=101):
+    device = next(model.parameters()).device
+    t = np.arange(n_times) / (n_times - 1)
+    out = []
+    model.eval()
+    with torch.no_grad():
+        for p in P:
+            X = np.concatenate([np.repeat(p[None], n_times, axis=0), t[:, None]], axis=1)
+            out.append(model(torch.tensor(X, dtype=torch.float32, device=device)).squeeze(1).cpu().numpy())
+    return np.array(out)
