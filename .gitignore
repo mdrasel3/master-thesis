@@ -1,0 +1,19 @@
+# large data: not for git
+*.h5
+*.zip
+*.npy
+data_raw/
+
+# keep the small design files
+!input_space_samples_*.h5
+
+# outputs that the scripts regenerate
+bnn/results/
+*.pt
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# ignore these folders
+bnn/simple_bnn/
+PODI_output_files/
