@@ -12,7 +12,9 @@ n = len(train)
 t = np.arange(n_times) * 2
 
 print("training runs", n, "| validation", len(validation), "| test", len(test))
-print("Y", Y.shape, "max", Y.max(), "min", Y.min(), "zero fraction", (Y == 0).mean())
+print("Y", Y.shape, "\nmax", Y.max(), "\nmin", Y.min())
+print("zero percentage", f"{zero:.2f * 100}", "%")
+zero = (Y == 0).mean().round(3)
 print("scaled input params: \n min", P.min(axis=0), "\n max", P.max(axis=0))
 
 run_max = Y.max(axis=(1, 2, 3))
@@ -37,9 +39,13 @@ im = show_field(ax[1, 0], Y[:, 100].mean(axis=0)); ax[1, 0].set_title("mean over
 plt.colorbar(im, ax=ax[1, 0], fraction=0.046)
 im = show_field(ax[1, 1], Y[:, 100].std(axis=0)); ax[1, 1].set_title("std over runs, t=200 s")
 plt.colorbar(im, ax=ax[1, 1], fraction=0.046)
-for i in range(n):
-    ax[1, 2].plot(t, Y[i].sum(axis=(1, 2)), lw=0.5)
-ax[1, 2].set_title("slice sum of HRRPUV vs time"); ax[1, 2].set_xlabel("t [s]")
+selected_indices = np.linspace(0, n - 1, 3, dtype=int)
+for i in selected_indices:
+    ax[1, 2].plot(t, Y[i].sum(axis=(1, 2)), lw=1.0, label=f"Run_{train[i]}")
+ax[1, 2].set_title("slice sum of HRRPUV vs time")
+ax[1, 2].set_xlabel("t [s]")
+ax[1, 2].set_xticks([0, 50, 100, 150, 200])
+ax[1, 2].legend(fontsize=8)
 ax[1, 3].hist(np.log1p(Y[:, 100].ravel()), bins=50); ax[1, 3].set_title("log1p(HRRPUV), t=200 s")
 plt.tight_layout()
 plt.savefig(os.path.join(results_dir, "data_summary.png"), dpi=120)
