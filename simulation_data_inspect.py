@@ -25,7 +25,7 @@ print("Mean:", np.nanmean(arr))
 print("NaNs:", np.isnan(arr).sum())
 # %% Plotting
 plt.figure(figsize=(6, 4))
-plt.imshow(arr, origin="lower", cmap="inferno")
+plt.imshow(arr.T, origin="lower", cmap="inferno")
 plt.colorbar(label="HRRPUV")
 plt.title(f"Run 1, HRRPUV slice PBY=0.04, t={desired_timestep} s")
 plt.xlabel("Grid index x")
@@ -44,7 +44,7 @@ for r_idx, run_id in enumerate(runs):
         arr = np.load(file)
 
         ax = axes[r_idx, t_idx]
-        im = ax.imshow(arr, origin="lower", cmap="inferno")
+        im = ax.imshow(arr.T, origin="lower", cmap="inferno")
         ax.set_title(f"Run {run_id}, t={t}")
         ax.axis("off")
 
