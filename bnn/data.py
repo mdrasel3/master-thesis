@@ -12,7 +12,7 @@ split_file = os.path.join(here, "split.json")
 log_file = os.path.join(here, "experiments.csv")
 results_dir = os.path.join(here, "results")
 
-n_train = 128         # training runs: Run_1 ... Run_n_train (at most 400)
+n_train = 400         # training runs: Run_1 ... Run_n_train (at most 400)
 seed = 0
 n_times = 101         # t = 0, 2, ..., 200 s
 
