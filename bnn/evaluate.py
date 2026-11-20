@@ -17,7 +17,9 @@ s, train, validation, test = ck["s"], ck["train"], ck["validation"], ck["test"]
 _, val_now, test_now = split_runs()
 if not (np.array_equal(validation, val_now) and np.array_equal(test, test_now)):
     print("warning: this model was trained with a different split.json")
-model = Decoder().to(device)
+# old checkpoints (e.g. results/n128/) have no "sizes" -> Decoder defaults
+sizes = ck.get("sizes", {})
+model = Decoder(**sizes).to(device)
 model.load_state_dict(ck["model"])
 
 _, Y_train = load_runs(train)
@@ -26,7 +28,7 @@ del Y_train
 
 res = {}
 row = {k: ck[k] for k in ("n_train", "seed", "epochs", "lr", "batch_size", "best_epoch")}
-row["model"] = "deterministic"
+row["model"] = "deterministic" if not sizes else f"deterministic_h{sizes['n_hidden']}_c{sizes['c0']}"
 for name, runs in (("val", validation), ("test", test)):
     P, Y = load_runs(runs)
     pred = to_physical(predict_runs(model, P), s)

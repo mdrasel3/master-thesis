@@ -35,7 +35,7 @@ if check_net and os.path.exists(ckpt_file):
     from model import Decoder, predict_runs
     ck = torch.load(ckpt_file, map_location="cpu", weights_only=False)
     if "test" in ck and np.array_equal(ck["test"], test):
-        model = Decoder()
+        model = Decoder(**ck.get("sizes", {}))
         model.load_state_dict(ck["model"])
         pred = to_physical(predict_runs(model, P_te), ck["s"])
         out["net_vs_raw"] = report("net vs raw FDS, test", pred, Y_te)

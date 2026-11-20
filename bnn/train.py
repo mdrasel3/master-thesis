@@ -8,6 +8,9 @@ from model import Decoder
 epochs = 300
 batch_size = 256
 lr = 1e-3
+# decoder size: hidden units of the dense layer and channels of the conv layers
+# (old default 256 / 32,16,8; here about twice as large, to test if size limits the error)
+sizes = {"n_hidden": 512, "c0": 64, "c1": 32, "c2": 16}
 ckpt_file = os.path.join(results_dir, "best_model.pt")
 
 torch.manual_seed(seed)
@@ -34,7 +37,7 @@ X_va, T_va = make_pairs(P_val, Y_val)
 del Y_train, Y_val
 print("train runs", len(train), "pairs", X_tr.shape[0], "| val runs", len(validation), "pairs", X_va.shape[0])
 
-model = Decoder().to(device)
+model = Decoder(**sizes).to(device)
 print("parameters", sum(p.numel() for p in model.parameters()))
 opt = torch.optim.Adam(model.parameters(), lr=lr)
 loss_fn = torch.nn.MSELoss()
@@ -65,7 +68,7 @@ for epoch in range(1, epochs + 1):
         best, best_epoch = val_loss, epoch
         torch.save({"model": model.state_dict(), "s": s, "train": train, "validation": validation, "test": test,
                     "n_train": n_train, "seed": seed, "epochs": epochs, "lr": lr, "batch_size": batch_size,
-                    "best_epoch": best_epoch}, ckpt_file)
+                    "best_epoch": best_epoch, "sizes": sizes}, ckpt_file)
     if epoch % 10 == 0 or epoch == 1:
         print(f"epoch {epoch} train {train_loss:.5f} val {val_loss:.5f} best {best:.5f} (epoch {best_epoch})")
 
